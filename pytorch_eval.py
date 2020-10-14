@@ -11,8 +11,9 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = torch.load('example/model/savetest.pth', map_location=DEVICE)
 
-count_ballon, count_banana, count_bell, count_cdplayer, count_cleaver, count_cradle, count_crane, count_daisy,\
-count_helmet, count_speaker= 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+counter= 0
+classes = ['ballon', 'banana', 'bell', 'cdplayer', 'cleaver', 'cradle', 'crane', 'daisy', 'helmet', 'speaker']
+class_correct = list(0. for i in range(10))
 
 dir = "example/test"
 # expect = 0
@@ -28,7 +29,6 @@ file_list = os.listdir(dir)
 file_list_jpeg = [file for file in file_list if file.endswith(".JPEG")]
 
 for image in file_list_jpeg:
-
     orig_image1 = cv2.imread(dir+'/'+image)
 
     to_pil = transforms.ToPILImage()
@@ -37,7 +37,7 @@ for image in file_list_jpeg:
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     text_image = image
-
+    
     image = trans(orig_image)
     image = image.unsqueeze(0)
     image = image.to(device)
@@ -51,59 +51,17 @@ for image in file_list_jpeg:
     # print(result1)
     round_result = round(float(result1[pr]), 4)  # Decimal point to round
     print(f"conf : {round_result}, result : {pr}")
-    
-    # if pr == expect :
-    #    correct_count +=1
+    # for get a total acc
+    if round_result<0.578:
+        counter += 1
+    class_correct[pr] += 1
     src = dir + '/' + text_image
-    if pr == 0:
-        dst = "example/test/ballon/"+text_image
-        shutil.copyfile(src, dst)
-        count_ballon += 1
-    elif pr == 1:
-        dst = "example/test/banana/" + text_image
-        shutil.copyfile(src, dst)
-        count_banana += 1
-    elif pr == 2:
-        dst = "example/test/bell/" + text_image
-        shutil.copyfile(src, dst)
-        count_bell += 1
-    elif pr == 3:
-        dst = "example/test/cdplayer/" + text_image
-        shutil.copyfile(src, dst)
-        count_cdplayer += 1
-    elif pr == 4:
-        dst = "example/test/cleaver/" + text_image
-        shutil.copyfile(src, dst)
-        count_cleaver += 1
-    elif pr == 5:
-        dst = "example/test/cradle/" + text_image
-        shutil.copyfile(src, dst)
-        count_cradle += 1
-    elif pr == 6:
-        dst = "example/test/crane/" + text_image
-        shutil.copyfile(src, dst)
-        count_crane += 1
-    elif pr == 7:
-        dst = "example/test/daisy/" + text_image
-        shutil.copyfile(src, dst)
-        count_daisy += 1
-    elif pr == 8:
-        dst = "example/test/helmet/" + text_image
-        shutil.copyfile(src, dst)
-        count_helmet += 1
-    elif pr == 9:
-        dst = "example/test/speaker/" + text_image
-        shutil.copyfile(src, dst)
-        count_speaker += 1
+    dst = "example/test/"+classes[pr]+'/'+text_image
+    shutil.copyfile(src, dst)
+    
+counter2 = (1000-counter)/1000*100
+for i in range(10):
+    print(f'Accuracy of {classes[i]} : {class_correct[i]}/100')
+print(f"Estimated number of misplaced images: {counter}")
+print(f"total acc : {counter2}")
 
-
-print(f"ballon acc : {count_ballon}/100")
-print(f"banana acc : {count_banana}/100")
-print(f"bell acc : {count_bell}/100")
-print(f"cdplayer acc : {count_cdplayer}/100")
-print(f"cleaver acc : {count_cleaver}/100")
-print(f"cradle acc : {count_cradle}/100")
-print(f"crane acc : {count_crane}/100")
-print(f"daisy acc : {count_daisy}/100")
-print(f"helmet acc : {count_helmet}/100")
-print(f"speaker acc : {count_speaker}/100")

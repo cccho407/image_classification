@@ -13,6 +13,8 @@ import os
 # import mb2
 from torchvision.models import MobileNetV2
 from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def train_model(model, criterion, optimizer, num_epochs, dset_sizes, dset_loaders):
@@ -45,6 +47,9 @@ def train_model(model, criterion, optimizer, num_epochs, dset_sizes, dset_loader
             
             loss.backward()  # find the gradient for the loss
             optimizer.step()  # update model.parameters
+            sns.lineplot(x='time', y='loss', data=loss)
+            plt.show()
+            plt.savefig('image.png')
             try:
                 running_loss += loss.item()
                 running_corrects += torch.sum(preds == labels.data)
@@ -58,8 +63,7 @@ def train_model(model, criterion, optimizer, num_epochs, dset_sizes, dset_loader
 
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-epoch = 20
+epoch = 10
 batch_size = 32
 num_class = 10
 
@@ -82,6 +86,7 @@ model_ft.classifier = nn.Sequential(
 
 data_transforms = {
     'train': transforms.Compose([
+        #transforms.Resize(224),
         transforms.RandomResizedCrop(224),  # 224
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),

@@ -59,9 +59,9 @@ for image in file_list_jpeg:
     dst = "example/test/"+classes[pr]+'/'+text_image
     shutil.copyfile(src, dst)
     
-counter2 = (1000-counter)/1000*100
+total_acc = (1000-counter)/1000*100
 for i in range(10):
     print(f'Accuracy of {classes[i]} : {class_correct[i]}/100')
 print(f"Estimated number of misplaced images: {counter}")
-print(f"total acc : {counter2}")
+print(f"total acc : {total_acc}")
 

@@ -13,8 +13,6 @@ import os
 # import mb2
 from torchvision.models import MobileNetV2
 from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 def train_model(model, criterion, optimizer, num_epochs, dset_sizes, dset_loaders):
@@ -28,6 +26,7 @@ def train_model(model, criterion, optimizer, num_epochs, dset_sizes, dset_loader
         running_corrects = 0
 
         counter = 0
+        counter_loss_list = 0
 
         for data in dset_loaders:
 
@@ -43,13 +42,12 @@ def train_model(model, criterion, optimizer, num_epochs, dset_sizes, dset_loader
                 
             loss = criterion(outputs, labels)
             counter += 1
-
+            loss_list[counter] = loss
+            
             
             loss.backward()  # find the gradient for the loss
             optimizer.step()  # update model.parameters
-            sns.lineplot(x='time', y='loss', data=loss)
-            plt.show()
-            plt.savefig('image.png')
+            
             try:
                 running_loss += loss.item()
                 running_corrects += torch.sum(preds == labels.data)
@@ -58,7 +56,7 @@ def train_model(model, criterion, optimizer, num_epochs, dset_sizes, dset_loader
 
         epoch_loss = running_loss / dset_sizes
         print('Loss: {:.4f}'.format(epoch_loss))
-             
+
     return model
 
 
@@ -102,10 +100,16 @@ criterion = nn.CrossEntropyLoss()  # -(expected value)*(answer)
 if torch.cuda.is_available():
     criterion.cuda()
     model_ft.cuda()
+#optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.01)
 optimizer_ft = optim.Adam(model_ft.parameters())
-
+plt.xlabel('counter')
+plt.ylabel('loss')
+loss_list = [0 for i in range(200*num_class*epoch)]
+x = [i for i in range(0,200*num_class*epoch)]
 model_ft = train_model(model_ft, criterion, optimizer_ft, epoch, dset_sizes, dset_loaders)
-
+y = [a for a in loss_list]
+plt.plot(x, y)
+plt.show()
 torch.save(model_ft, "example/model/savetest.pth")
 
 time_b = time.time()

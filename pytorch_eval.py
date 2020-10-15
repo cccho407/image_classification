@@ -52,7 +52,7 @@ for image in file_list_jpeg:
     round_result = round(float(result1[pr]), 4)  # Decimal point to round
     print(f"conf : {round_result}, result : {pr}")
     # for get a total acc
-    if round_result<0.578:
+    if round_result<0.6:
         counter += 1
     class_correct[pr] += 1
     src = dir + '/' + text_image
@@ -63,5 +63,5 @@ total_acc = (1000-counter)/1000*100
 for i in range(10):
     print(f'Accuracy of {classes[i]} : {class_correct[i]}/100')
 print(f"Estimated number of misplaced images: {counter}")
-print(f"total acc : {total_acc}")
+print(f"total acc : {total_acc}%")
 
